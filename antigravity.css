@@ -1,0 +1,371 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --page:#f6f2ec;
+  --surface:#ffffff;
+  --surface-soft:#fcf9f6;
+  --surface-mint:#fcece3;
+  --forest:#23211f;
+  --forest-deep:#191817;
+  --forest-hover:#393430;
+  --ink:#211f1e;
+  --text:#4d4742;
+  --muted:#736b64;
+  --subtle:#9a8d83;
+  --line:#e6ddd5;
+  --line-strong:#d7c4b7;
+  --green:#ad4529;
+  --green-soft:#e6f5e9;
+  --amber:#a56623;
+  --amber-soft:#fff0d9;
+  --red:#ad413b;
+  --red-soft:#fff0ed;
+  --blue:#426781;
+  --blue-soft:#e9f3fa;
+  --radius-xs:8px;
+  --radius-sm:12px;
+  --radius-md:17px;
+  --radius-lg:23px;
+  --shadow-sm:0 1px 3px rgba(35,30,26,.045),0 8px 24px rgba(35,30,26,.035);
+  --shadow-md:0 12px 36px rgba(35,30,26,.075);
+  --sans:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --display:'Manrope',var(--sans);
+  --mono:'JetBrains Mono','Cascadia Code',Consolas,monospace;
+}
+
+html,body,.stApp{font-family:var(--sans)!important;-webkit-font-smoothing:antialiased}
+.stApp{background:var(--page)!important;color:var(--ink)!important}
+.stApp [data-testid="stMain"]{background:transparent}
+.block-container{max-width:1480px!important;padding:3.25rem 2.5rem 5rem!important}
+header[data-testid="stHeader"]{height:3rem!important;background:var(--page)!important;border-bottom:1px solid rgba(35,30,26,.06)}
+[data-testid="stToolbar"],[data-testid="stDecoration"],[data-testid="stStatusWidget"],[data-testid="stAppDeployButton"],#MainMenu,footer{display:none!important}
+[data-testid="stSidebarCollapsedControl"] button{color:var(--forest)!important}
+[data-testid="stSidebarCollapsedControl"] button:hover{background:var(--surface-mint)!important}
+h1,h2,h3,h4{font-family:var(--display)!important;letter-spacing:-.035em!important;color:var(--ink)}
+p,[data-testid="stMarkdownContainer"]{color:var(--text)}
+a{color:var(--forest)}
+button,input,textarea{font-family:var(--sans)!important}
+:focus-visible{outline:3px solid #ea5e39!important;outline-offset:3px!important}
+
+/* Header */
+.app-header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 21px;padding:8px 0 24px;border-bottom:1px solid var(--line)}
+.app-header .brand{display:flex;align-items:center;gap:17px;min-width:0}
+.brand-icon{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;flex:none;color:#c7efa3;background:var(--forest);box-shadow:0 9px 20px rgba(35,30,26,.16)}
+.brand-icon svg{width:29px;height:29px}
+.app-header .eyebrow{display:block;color:var(--green);font:800 10px var(--display);letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px}
+.app-header h1{font:800 clamp(22px,2.1vw,32px)/1.1 var(--display)!important;margin:0!important;letter-spacing:-.055em!important}
+.app-header .subtitle{display:block;font-size:12.5px;color:var(--muted);margin-top:5px}
+.app-header .meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.status-chip,.user-chip{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:7px 12px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.status-chip{background:var(--green-soft);color:#246a40;border:1px solid #cde8d1}
+.status-chip .dot{width:7px;height:7px;border-radius:50%;background:#37a662}
+.user-chip{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.user-chip svg{width:15px;height:15px;color:var(--green)}
+.demo-chip{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);background:var(--amber-soft);border:1px solid #f0d6bd;border-radius:999px;padding:8px 11px}
+
+/* Navigation */
+.st-key-nav_principal div[data-testid="stSegmentedControl"]{width:100%!important;display:flex!important;background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:16px!important;padding:5px!important;box-shadow:var(--shadow-sm)!important;margin-bottom:23px!important;gap:4px!important}
+.st-key-nav_principal div[data-testid="stSegmentedControl"] button{flex:1 1 0!important;min-height:43px!important;border-radius:11px!important;padding:9px 15px!important;font-size:13px!important;font-weight:700!important;white-space:nowrap}
+div[data-testid="stSegmentedControl"]{background:var(--surface-soft)!important;border:1px solid var(--line)!important;border-radius:12px!important;padding:3px!important;gap:3px!important}
+div[data-testid="stSegmentedControl"] button{min-height:39px!important;border-radius:9px!important;border:0!important;color:var(--muted)!important;background:transparent!important;font-size:12.5px!important;font-weight:700!important;transition:background .18s,color .18s,box-shadow .18s!important}
+div[data-testid="stSegmentedControl"] button:hover{color:var(--forest)!important;background:var(--surface-mint)!important}
+div[data-testid="stSegmentedControl"] button[aria-checked="true"],div[data-testid="stSegmentedControl"] button[data-checked="true"]{color:var(--forest)!important;background:var(--surface-mint)!important;box-shadow:inset 0 0 0 1px #f0ccb9!important}
+.st-key-nav_principal div[data-testid="stSegmentedControl"] button[aria-checked="true"],.st-key-nav_principal div[data-testid="stSegmentedControl"] button[data-checked="true"]{color:#fff!important;background:var(--forest)!important;box-shadow:0 4px 12px rgba(35,30,26,.16)!important}
+
+/* Section hierarchy */
+.page-intro{padding:4px 0 21px}
+.page-intro .eyebrow{font:800 10px var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:5px}
+.page-intro h2{font:750 clamp(22px,2.3vw,31px)/1.18 var(--display);margin:0 0 6px;letter-spacing:-.05em}
+.page-intro p{margin:0;color:var(--muted);font-size:13px}
+.section-title{display:flex;align-items:center;gap:10px;margin:28px 0 13px;color:var(--ink);font:800 13px var(--display);letter-spacing:-.01em}
+.section-title:before{content:"";width:4px;height:19px;background:#ea5e39;border-radius:99px}
+.section-subtitle{color:var(--muted);font-size:13px;margin-top:-8px;margin-bottom:18px}
+[data-testid="stCaptionContainer"]{color:var(--muted)!important;font-size:12.5px!important}
+hr{border-color:var(--line)!important;margin:27px 0!important}
+
+/* KPI overview */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 23px}
+.kpi-card{position:relative;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:19px 21px 20px;box-shadow:var(--shadow-sm);transition:transform .2s,border-color .2s,box-shadow .2s}
+.kpi-card:hover{transform:translateY(-2px);border-color:var(--line-strong);box-shadow:var(--shadow-md)}
+.kpi-card:first-child{background:var(--forest);border-color:var(--forest);color:#fff}
+.kpi-card:first-child:after{content:"";position:absolute;right:-24px;top:-67px;width:166px;height:166px;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 34px rgba(255,255,255,.035)}
+.kpi-card .label{font-size:10.5px;font-weight:800;letter-spacing:.105em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kpi-card:first-child .label{color:#f4d6c7}
+.kpi-card .value{font:800 clamp(27px,3vw,39px)/1.1 var(--display);letter-spacing:-.065em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.kpi-card:first-child .value{color:#fff}
+.kpi-card .delta{font-size:11.5px;color:var(--subtle);margin-top:6px}
+.kpi-card:first-child .delta{color:#e9d9cf}
+
+/* Inputs and controls */
+label,.stSelectbox label,.stTextInput label,.stNumberInput label,.stMultiSelect label{font-size:12px!important;font-weight:700!important;color:var(--text)!important}
+div[data-baseweb="select"]>div,div[data-baseweb="input"],[data-testid="stNumberInput"] input,[data-testid="stTextArea"] textarea{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:12px!important;color:var(--ink)!important;min-height:44px!important;font-size:13px!important;box-shadow:var(--shadow-sm)!important;transition:border-color .18s,box-shadow .18s!important}
+div[data-baseweb="select"]>div:hover,div[data-baseweb="input"]:hover{border-color:var(--line-strong)!important}
+div[data-baseweb="select"]:focus-within>div,div[data-baseweb="input"]:focus-within{border-color:#d47250!important;box-shadow:0 0 0 3px rgba(234,94,57,.14)!important}
+/* Keep the input and reveal button inside a single password-field border. */
+[data-testid="stTextInput"] [data-baseweb="input"]{min-width:0!important;width:100%!important}
+[data-testid="stTextInput"] [data-baseweb="input"]>div{min-width:0!important;display:flex!important;align-items:center!important}
+[data-testid="stTextInput"] input{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  width:auto!important;
+  min-height:0!important;
+  height:42px!important;
+  padding:0 12px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--ink)!important;
+  font-size:13px!important;
+}
+[data-testid="stTextInput"] input:focus{outline:none!important;box-shadow:none!important}
+input::placeholder{color:#9a8f87!important}
+div[data-testid="stPills"] button{min-height:38px!important;border-radius:999px!important;background:var(--surface)!important;border:1px solid var(--line)!important;color:var(--text)!important;font-size:12px!important;font-weight:700!important;padding:6px 15px!important;transition:background .18s,border-color .18s,color .18s!important}
+div[data-testid="stPills"] button:hover{background:var(--surface-mint)!important;border-color:#e4bba8!important}
+div[data-testid="stPills"] button[aria-checked="true"],div[data-testid="stPills"] button[data-checked="true"]{background:var(--forest)!important;border-color:var(--forest)!important;color:#fff!important}
+
+/* Buttons */
+button[kind="primary"],[data-testid="stDownloadButton"] button[kind="primary"]{background:var(--forest)!important;border:1px solid var(--forest)!important;color:#fff!important;border-radius:12px!important;min-height:43px!important;font-size:12.5px!important;font-weight:800!important;box-shadow:0 7px 16px rgba(35,30,26,.14)!important;transition:background .18s,transform .18s,box-shadow .18s!important}
+button[kind="primary"]:hover,[data-testid="stDownloadButton"] button[kind="primary"]:hover{background:var(--forest-hover)!important;transform:translateY(-1px)!important;box-shadow:0 10px 20px rgba(35,30,26,.17)!important}
+button[kind="primary"]:active{transform:translateY(0)!important}
+button[kind="secondary"],button[kind="tertiary"]{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:12px!important;color:var(--text)!important;min-height:42px!important;font-size:12.5px!important;font-weight:700!important;box-shadow:var(--shadow-sm)!important;transition:background .18s,border-color .18s,color .18s!important}
+button[kind="secondary"]:hover,button[kind="tertiary"]:hover{background:var(--surface-mint)!important;border-color:#e4bba8!important;color:var(--forest)!important}
+
+/* Native surfaces */
+div[data-testid="stVerticalBlockBorderWrapper"]{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:var(--radius-lg)!important;padding:18px 22px!important;box-shadow:var(--shadow-sm)!important}
+div[data-testid="stMetric"]{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:var(--radius-md)!important;padding:16px 18px!important;box-shadow:var(--shadow-sm)!important}
+[data-testid="stMetricLabel"]{color:var(--muted)!important;font-size:11px!important;font-weight:800!important;text-transform:uppercase;letter-spacing:.08em}
+[data-testid="stMetricValue"]{color:var(--ink)!important;font:800 28px var(--display)!important;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+div[data-testid="stDataFrame"],div[data-testid="stTable"]{border:1px solid var(--line)!important;border-radius:var(--radius-md)!important;overflow:hidden!important;background:#fff!important;box-shadow:var(--shadow-sm)!important}
+[data-testid="stDataFrame"]{font-variant-numeric:tabular-nums}
+[data-testid="stExpander"]{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:var(--radius-md)!important;box-shadow:var(--shadow-sm)!important}
+[data-testid="stExpander"] summary{color:var(--ink)!important;font-weight:700!important}
+div[role="dialog"]{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:var(--radius-lg)!important;box-shadow:0 30px 80px rgba(31,24,20,.2)!important}
+div[data-testid="stToast"]{border-radius:var(--radius-sm)!important}
+
+/* Flow recommendations */
+.flow-card{display:grid;grid-template-columns:minmax(0,1fr) 34px auto 34px minmax(0,1fr);align-items:center;gap:12px;margin-bottom:8px;padding:11px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);font-size:12.5px;box-shadow:var(--shadow-sm)}
+.flow-card .node{font-weight:800;color:var(--ink);overflow-wrap:anywhere}
+.flow-card .arrow{display:grid;place-items:center;color:var(--green);font-size:16px}
+.flow-card .badge{padding:5px 10px;border-radius:999px;background:var(--surface-mint);color:var(--forest);font-weight:800;font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* Sidebar */
+section[data-testid="stSidebar"]{background:#f1e9df!important;border-right:1px solid var(--line)!important}
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"]{gap:.7rem}
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{font-size:11px!important;letter-spacing:.07em;text-transform:uppercase;font-weight:800;color:var(--green)!important}
+section[data-testid="stSidebar"] p{font-size:12.5px}
+
+/* Semantic feedback */
+[data-testid="stAlert"]{border-radius:var(--radius-sm)!important;border-width:1px!important}
+[data-testid="stAlert"] p{font-size:13px!important}
+[data-testid="stAlert"] [data-testid="stMarkdownContainer"]{color:inherit!important}
+
+@media(max-width:1050px){
+  .block-container{padding-inline:1.4rem!important}
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .block-container{padding:3rem 1rem 4rem!important}
+  .app-header{align-items:flex-start;flex-direction:column;gap:14px}
+  .app-header .meta{justify-content:flex-start}
+  .st-key-nav_principal div[data-testid="stSegmentedControl"]{overflow-x:auto!important;justify-content:flex-start!important}
+  .st-key-nav_principal div[data-testid="stSegmentedControl"] button{flex:0 0 auto!important;min-width:118px!important}
+  .flow-card{grid-template-columns:minmax(0,1fr) 24px auto;gap:7px}
+  .flow-card .arrow:nth-of-type(2),.flow-card .node:last-child{display:none}
+}
+@media(max-width:520px){
+  .kpi-grid{gap:9px}
+  .kpi-card{padding:15px 13px;border-radius:16px}
+  .kpi-card .label{font-size:9px}
+  .kpi-card .value{font-size:25px}
+  .kpi-card .delta{font-size:10px}
+  .brand-icon{width:46px;height:46px;border-radius:14px}
+  .app-header .subtitle{font-size:11.5px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+/* Streamlit 1.51 renders segmented controls and pills through stButtonGroup. */
+[data-testid="stToolbar"]{display:flex!important;visibility:visible!important}
+[data-testid="stToolbarActions"],[data-testid="stAppDeployButton"],[data-testid="stMainMenu"]{display:none!important}
+[data-testid="stExpandSidebarButton"]{color:var(--forest)!important;border-radius:10px!important}
+[data-testid="stExpandSidebarButton"]:hover{background:var(--surface-mint)!important}
+.brand-icon svg,.user-chip svg{display:none}
+.brand-icon::before{content:"⇄";font:700 31px/1 var(--display);letter-spacing:-.08em}
+.user-chip::before{content:"◦";font-size:22px;line-height:10px;color:var(--green)}
+div[data-testid="stButtonGroup"] [data-baseweb="button-group"]{background:var(--surface-soft)!important;border:1px solid var(--line)!important;border-radius:12px!important;padding:3px!important;gap:3px!important;box-shadow:none!important}
+div[data-testid="stButtonGroup"] button[kind^="segmented_control"]{min-height:40px!important;padding:8px 16px!important;border:0!important;border-radius:9px!important;background:transparent!important;color:var(--muted)!important;font-size:12.5px!important;font-weight:700!important}
+div[data-testid="stButtonGroup"] button[kind^="segmented_control"]:hover{background:var(--surface-mint)!important;color:var(--forest)!important}
+div[data-testid="stButtonGroup"] button[kind="segmented_controlActive"]{background:var(--surface-mint)!important;color:var(--forest)!important;box-shadow:inset 0 0 0 1px #f0ccb9!important}
+.st-key-nav_principal [data-baseweb="button-group"]{width:100%!important;background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:16px!important;padding:5px!important;box-shadow:var(--shadow-sm)!important}
+.st-key-nav_principal button[kind^="segmented_control"]{flex:1 1 0!important;min-height:44px!important}
+.st-key-nav_principal button[kind="segmented_controlActive"]{background:var(--forest)!important;color:#fff!important;box-shadow:0 4px 12px rgba(35,30,26,.16)!important}
+div[data-testid="stButtonGroup"] button[kind^="pills"]{min-height:38px!important;padding:6px 15px!important;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--surface)!important;color:var(--text)!important;font-size:12px!important;font-weight:700!important}
+div[data-testid="stButtonGroup"] button[kind^="pills"]:hover{background:var(--surface-mint)!important;border-color:#e4bba8!important}
+div[data-testid="stButtonGroup"] button[kind="pillsActive"]{background:var(--forest)!important;border-color:var(--forest)!important;color:#fff!important}
+@media(max-width:760px){
+  .st-key-nav_principal [data-baseweb="button-group"]{overflow-x:auto!important}
+  .st-key-nav_principal button[kind^="segmented_control"]{flex:0 0 auto!important;min-width:118px!important}
+}
+
+/* Keep labels readable inside Streamlit's button-group markup. */
+div[data-testid="stButtonGroup"] button[kind^="segmented_control"] p,
+div[data-testid="stButtonGroup"] button[kind^="pills"] p{
+  color:inherit!important;
+  font-size:inherit!important;
+  white-space:nowrap!important;
+}
+.st-key-nav_principal button[kind^="segmented_control"]{
+  flex:1 0 auto!important;
+  min-width:105px!important;
+}
+
+/* Final selected-state contrast, after the shared control rules. */
+.st-key-nav_principal button[kind="segmented_controlActive"],
+.st-key-nav_principal button[kind="segmented_controlActive"]:hover{
+  background:var(--forest)!important;
+  color:#fff!important;
+  box-shadow:0 4px 12px rgba(35,30,26,.16)!important;
+}
+.st-key-nav_principal button[kind="segmented_controlActive"] p,
+div[data-testid="stButtonGroup"] button[kind="pillsActive"] p{
+  color:#fff!important;
+}
+
+.st-key-nav_principal div[data-testid="stButtonGroup"] button[kind="segmented_controlActive"],
+.st-key-nav_principal div[data-testid="stButtonGroup"] button[kind="segmented_controlActive"]:hover{
+  background:var(--forest)!important;
+  color:#fff!important;
+  box-shadow:0 4px 12px rgba(35,30,26,.16)!important;
+}
+.st-key-nav_principal div[data-testid="stButtonGroup"] button[kind="segmented_controlActive"] p{
+  color:#fff!important;
+}
+
+@media(max-width:760px){
+  .st-key-nav_principal [data-baseweb="button-group"]{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:4px!important;
+    overflow:visible!important;
+  }
+  .st-key-nav_principal div[data-testid="stButtonGroup"] button[kind^="segmented_control"]{
+    width:100%!important;
+    min-width:0!important;
+    flex:none!important;
+  }
+}
+
+@media(max-width:760px){
+  .st-key-nav_principal,
+  .st-key-nav_principal div[data-testid="stButtonGroup"],
+  .st-key-nav_principal [data-baseweb="button-group"]{
+    width:100%!important;
+    max-width:100%!important;
+  }
+}
+
+
+/* Company brand treatment: the original bitmap is displayed without recoloring. */
+:root{
+  --brand-orange:#ea5e39;
+  --brand-orange-strong:#b64728;
+  --brand-orange-hover:#9f3d22;
+}
+.brand-logo-frame{
+  width:120px;
+  height:80px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:17px;
+}
+.brand-logo{
+  position:absolute;
+  width:140px;
+  height:140px;
+  max-width:none;
+  left:-11px;
+  top:-32px;
+  object-fit:fill;
+}
+.app-header .eyebrow,.page-intro .eyebrow{color:var(--green)!important}
+.section-title:before{background:var(--brand-orange)!important}
+.kpi-card:first-child:after{
+  border-color:rgba(234,94,57,.25);
+  box-shadow:0 0 0 34px rgba(234,94,57,.055);
+}
+button[kind="primary"],[data-testid="stDownloadButton"] button[kind="primary"]{
+  background:var(--brand-orange-strong)!important;
+  border-color:var(--brand-orange-strong)!important;
+  color:#130b08!important;
+  box-shadow:0 7px 16px rgba(182,71,40,.16)!important;
+}
+button[kind="primary"] p,
+button[kind="primary"] span,
+button[kind="primary"] svg{
+  color:#130b08!important;
+}
+button[kind="primary"]:hover,[data-testid="stDownloadButton"] button[kind="primary"]:hover{
+  background:var(--brand-orange-hover)!important;
+  border-color:var(--brand-orange-hover)!important;
+  box-shadow:0 10px 20px rgba(182,71,40,.20)!important;
+}
+div[data-testid="stButtonGroup"] button[kind="pillsActive"],
+div[data-testid="stButtonGroup"] button[kind="pillsActive"]:hover{
+  background:var(--brand-orange-strong)!important;
+  border-color:var(--brand-orange-strong)!important;
+  color:#fff!important;
+}
+div[data-testid="stButtonGroup"] button[kind="pillsActive"] p{color:#fff!important}
+.status-chip{background:#e9f6ed!important;color:#267046!important;border-color:#cce8d2!important}
+.status-chip .dot{background:#38a768!important}
+@media(max-width:520px){
+  .brand-logo-frame{width:91px;height:64px;border-radius:14px}
+  .brand-logo{width:109px;height:109px;left:-9px;top:-25px}
+}
+
+.kpi-card:first-child{overflow:hidden}
+
+/* Acesso ao guia, disponível em todas as telas após o login. */
+.st-key-ajuda_flutuante{
+  position:fixed!important;
+  right:24px;
+  bottom:22px;
+  z-index:999;
+  width:auto!important;
+  filter:drop-shadow(0 8px 18px rgba(31,24,20,.18));
+}
+.st-key-ajuda_flutuante button{
+  border:1px solid #1f1b19!important;
+  border-radius:999px!important;
+  background:#23211f!important;
+  color:#fff!important;
+  min-height:48px!important;
+  padding:0 17px!important;
+  font-weight:700!important;
+}
+.st-key-ajuda_flutuante button:hover{background:#393430!important;border-color:#393430!important}
+.st-key-ajuda_flutuante button p,.st-key-ajuda_flutuante button svg{color:#fff!important}
+
+/* As duas ações de recuperação cabem lado a lado na barra lateral. */
+[class*="st-key-recuperacao_acoes_"] button{
+  min-height:58px!important;
+  padding:8px 6px!important;
+}
+[class*="st-key-recuperacao_acoes_"] button p{
+  white-space:normal!important;
+  line-height:1.2!important;
+  text-align:center!important;
+  font-size:11px!important;
+}
+@media(max-width:760px){.st-key-ajuda_flutuante{right:14px;bottom:14px}}
+
+
+@media(max-width:760px){
+  .st-key-nav_principal div[data-testid='stButtonGroup'] button[kind^='segmented_control']{height:auto!important;min-height:48px!important;padding:7px 9px!important}
+  .st-key-nav_principal div[data-testid='stButtonGroup'] button[kind^='segmented_control'] p{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2!important;text-align:center!important}
+}

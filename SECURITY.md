@@ -1,24 +1,13 @@
 # Política de segurança
 
-## Comunicação responsável
+## Relato de vulnerabilidades
 
-Não publique vulnerabilidades, credenciais, endereços internos, dados de usuários ou evidências sensíveis em issues públicas. Utilize um canal privado definido pelo responsável pelo repositório e inclua uma descrição objetiva do problema, impacto e forma de reprodução.
+Se você identificar uma falha de segurança neste repositório, não abra uma issue pública com detalhes de exploração. Envie um relato privado pelo recurso de *Security Advisories* do GitHub contendo os passos de reprodução e o impacto observado.
 
-O recebimento deve ser confirmado, o risco avaliado e a correção planejada antes de qualquer divulgação pública.
+## Escopo coberto pelo projeto
 
-## Escopo esperado
-
-- Autenticação, autorização e gestão de sessão.
-- Proteção de dados e consultas ao banco.
-- Importação e exportação de planilhas.
-- Exposição acidental de segredos, arquivos internos ou dados de operação.
-- Dependências vulneráveis e cadeia de fornecimento.
-
-## Controles adotados na versão pública
-
-- Nenhum segredo é versionado; somente `.env.example` é mantido no Git.
-- Dados de demonstração são sintéticos.
-- O repositório exclui certificados, bancos locais, exports, logs e arquivos temporários.
-- A integração contínua executa testes e verificações de dependências.
-- Alterações de estrutura de banco são versionadas como migrações revisáveis.
-
+- Autenticação de usuários, derivação de senhas (`PBKDF2-HMAC-SHA256`) e bloqueio contra força bruta (`auth.py`).
+- Validação de sessão e autorização no servidor antes de leituras, gravações e ações administrativas (`auth.py` e `real_data.py`).
+- Serviço local de cookie `HttpOnly` e validação de origem (`session_bridge.py`).
+- Prevenção de injeção de fórmulas na exportação de relatórios Excel (`real_data.py`).
+- Isolamento de dados sintéticos sem exposição de credenciais ou infraestrutura privada.

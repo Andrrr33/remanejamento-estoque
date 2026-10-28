@@ -1,44 +1,56 @@
-# Arquitetura da versão oficial
+# Arquitetura da aplicação
 
-## Princípios
+## Fluxo de execução e camadas
 
-1. A interface não contém regras críticas nem credenciais.
-2. Cada ação sensível valida usuário e permissão no servidor.
-3. O acesso ao banco passa por uma camada de repositórios.
-4. Configuração e segredos ficam fora do código e fora do Git.
-5. O portfólio usa dados fictícios; a operação real fica isolada.
+A aplicação separa a interface Streamlit das regras de cálculo, persistência e autenticação:
 
-## Fluxo de uma solicitação
+```mermaid
+flowchart LR
+    U["Navegador do usuário"] -->|"HTTP local (8504)"| APP["app.py (Interface Streamlit)"]
+    U -->|"Cookie HttpOnly (8774)"| BRIDGE["session_bridge.py"]
+    APP --> AUTH["auth.py (Identidade e sessão)"]
+    APP --> DATA["real_data.py (Consultas e gravação)"]
+    APP --> CALC["calculos.py (Algoritmos de estoque)"]
+    CALC --> DEMO["dados_demo.py (Catálogo, saldos e vendas 60d)"]
+    DATA --> DEMO
+    DATA --> DB[("banco_local.py (SQLite)")]
+    AUTH --> DB
+    BRIDGE --> AUTH
+```
+
+## Ciclo de uma solicitação de transferência
 
 ```mermaid
 sequenceDiagram
-    participant Usuário
-    participant Tela as Streamlit
-    participant Serviço as Serviço de solicitações
-    participant Autorização
-    participant Banco as SQL Server
-    participant Auditoria
+    participant Usuario as Usuário
+    participant Tela as app.py (Streamlit)
+    participant Calculo as calculos.py
+    participant Dados as real_data.py
+    participant Auth as auth.py
+    participant SQLite as portfolio.sqlite3
 
-    Usuário->>Tela: Seleciona SKUs e plano
-    Tela->>Serviço: Solicita registro
-    Serviço->>Autorização: Valida sessão e permissão
-    Autorização-->>Serviço: Autorizado
-    Serviço->>Banco: Grava solicitação em transação
-    Serviço->>Auditoria: Registra evento sem segredo
-    Serviço-->>Tela: Confirmação com identificador
-    Tela-->>Usuário: Solicitação registrada
+    Usuario->>Tela: Filtra catálogo, seleciona SKUs e escolhe estratégia
+    Tela->>Calculo: Calcula sugestões (Concentrar, Distribuir ou Pontas)
+    Calculo-->>Tela: Lista de transferências sugeridas por origem e destino
+    Usuario->>Tela: Confirma o registro do plano
+    Tela->>Dados: gravar_novas_solicitacoes(sugestoes)
+    Dados->>Auth: exigir_usuario() valida token ativo e senha
+    Auth-->>Dados: Conta autenticada
+    Dados->>SQLite: BEGIN IMMEDIATE, confere duplicatas pendentes e grava
+    Dados-->>Tela: Quantidade registrada e quantidade ignorada
+    Tela-->>Usuario: Exibe confirmação e atualiza indicadores
 ```
 
-## Ambientes
+## Decisões técnicas
 
-O fluxo proposto mantém somente dois ambientes, adequados a uma operação individual:
+### Persistência híbrida na demonstração
 
-- **Desenvolvimento:** dados de teste, banco de teste e validação das mudanças.
-- **Produção:** código aprovado, banco real e acesso pelos usuários da rede interna.
+O catálogo de produtos, os saldos de estoque e as vendas dos últimos 60 dias vêm de funções determinísticas em `dados_demo.py`. Assim, os cenários de excesso, ruptura e grade furada estão sempre prontos para teste. Já as contas de usuário, as sessões, os pedidos de recuperação de senha e as novas solicitações de transferência são gravados em `dados/portfolio.sqlite3` por `banco_local.py`.
 
-Ambos usam a mesma estrutura de código e configurações por variáveis de ambiente. As diferenças ficam exclusivamente na infraestrutura e nos segredos de cada ambiente.
+### Validação de sessão no servidor em cada operação
 
-## Dados e desempenho
+O Streamlit pode reexecutar apenas um diálogo (`@st.dialog`) ou um fragmento (`@st.fragment`) sem rodar o topo do script principal. Por isso, `real_data.py` e `auth.py` chamam `exigir_usuario()` dentro de cada função que lê dados restritos, grava solicitações, emite senhas temporárias ou exporta o relatório Excel.
 
-Consultas de interface devem buscar apenas as colunas e o período necessários. Listas grandes usam filtros antes da carga, cache com invalidação explícita e paginação quando necessário. Relatórios pesados são produzidos fora do caminho principal da interação do usuário.
+### Continuidade da sessão após recarregar a página
 
+O módulo `session_bridge.py` inicia um servidor HTTP local na porta `8774` para gravar um cookie `HttpOnly` com `SameSite=Strict`. Quando o usuário recarrega a página com `F5`, `app.py` lê o cookie via `st.context.cookies` e restaura a sessão caso não tenha passado mais de 5 minutos sem interação. Se o aplicativo rodar em um ambiente de nuvem onde a porta secundária não esteja acessível ao navegador, a sessão continua funcionando normalmente em memória pelo `st.session_state`.

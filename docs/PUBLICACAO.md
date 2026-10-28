@@ -1,25 +1,22 @@
-# Publicação responsável no GitHub
+# Guia de publicação e demonstração
 
-## Sequência recomendada
+## Verificações antes de publicar atualizações
 
-1. Concluir as correções de segurança no ambiente de desenvolvimento.
-2. Revisar o histórico Git e rotacionar qualquer credencial que tenha existido em commits antigos.
-3. Extrair uma versão demonstrável com dados sintéticos e nomes neutros.
-4. Confirmar que `.gitignore` exclui bancos, planilhas, logs, certificados e arquivos `.env`.
-5. Criar testes para autenticação, autorização, fluxo de solicitações e exportação.
-6. Ativar verificações automáticas de testes, dependências e segredos.
-7. Publicar a demonstração em repositório público separado do repositório operacional privado.
+1. Confirme que o arquivo `dados/portfolio.sqlite3`, logs locais (`*.log`) e ambientes virtuais (`.venv/`) não estão listados no `git status`.
+2. Execute a suíte de testes completa:
+   ```powershell
+   .\.venv\Scripts\python.exe -m unittest discover -s tests -v
+   ```
+3. Inicie o aplicativo localmente e teste o acesso rápido com as contas `ADMINDEMO` e `COMPRASDEMO`.
 
-## Automação esperada no GitHub
+## Execução local vs. hospedagem em nuvem
 
-| Evento | Verificação |
-| --- | --- |
-| Pull request | Formatação, testes e análise estática |
-| Pull request | Varredura de segredos e dependências vulneráveis |
-| Dependência atualizada | Pull request automático para revisão |
-| Release | Criação de versão identificável e notas de mudança |
+| Aspecto | Execução local (`127.0.0.1`) | Hospedagem em nuvem (ex.: Streamlit Community Cloud) |
+| --- | --- | --- |
+| Banco de dados | `dados/portfolio.sqlite3` persistido no disco local | SQLite criado automaticamente no container da aplicação |
+| Sessão após `F5` | Conservada pelo cookie `HttpOnly` na porta `8774` | Mantida em `st.session_state` durante a conexão da aba |
+| Contas iniciais | `ADMINDEMO` e `COMPRASDEMO` criadas na inicialização | `ADMINDEMO` e `COMPRASDEMO` criadas na inicialização |
 
-## Por que dois repositórios
+## Separação entre portfólio e ambiente corporativo
 
-O repositório operacional tem contexto de negócio, configuração privada e histórico que não devem ser públicos. O repositório de portfólio mostra o código e as decisões técnicas sem expor a operação. Os dois podem seguir a mesma arquitetura, sem compartilhar dados, segredos ou histórico.
-
+Este repositório mantém a mesma arquitetura de interface, regras de cálculo de estoque, validações de sessão e formato de exportação Excel do sistema de produção, substituindo a camada de banco SQL Server corporativo pelo adaptador SQLite (`banco_local.py`) e pela massa sintética (`dados_demo.py`). Nenhum dado de clientes, filiais reais, servidores internos ou credenciais de trabalho faz parte deste código.

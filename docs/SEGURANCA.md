@@ -1,37 +1,22 @@
-# Segurança: desenho esperado antes da publicação
+# Controles de segurança implementados
 
-## Identidade e sessão
+## Autenticação e senhas (`auth.py`)
 
-- Senhas com hash adaptativo ou PBKDF2 forte, salt único e parâmetros revisáveis.
-- Política mínima de senha, limite de tentativas e bloqueio temporário contra força bruta.
-- Token de sessão aleatório, armazenado somente como hash no banco.
-- Expiração por inatividade e invalidação global após troca de senha.
-- Cookie `HttpOnly`, `Secure` em HTTPS e `SameSite` apropriado.
-- Recuperação de senha com token de uso único, prazo curto e registro de auditoria.
+- As senhas são derivadas com `PBKDF2-HMAC-SHA256`, 600.000 iterações e salt aleatório de 16 bytes por usuário.
+- A verificação usa `hmac.compare_digest` e executa uma derivação contra um hash fixo quando o usuário informado não existe, reduzindo diferenças de tempo de resposta.
+- Cinco falhas consecutivas de senha bloqueiam a conta por 15 minutos (`900` segundos).
+- O cadastro exige nomes de usuário ASCII de 3 a 32 caracteres alfanuméricos e senhas entre 12 e 128 caracteres, criando sempre contas com perfil `usuario`.
+- A recuperação de senha gera um pedido pendente para aprovação de um administrador. Ao emitir a senha temporária, o sistema invalida todas as sessões anteriores daquela conta e exige a troca da senha no próximo acesso.
 
-## Autorização
+## Sessão e autorização por operação (`auth.py`, `session_bridge.py` e `real_data.py`)
 
-Perfis não ficam restritos à interface. Cada serviço confirma no servidor se o usuário pode criar solicitação, consultar auditoria, exportar dados ou administrar acessos. A tela pode ocultar recursos sem permissão, mas o serviço toma a decisão.
+- O banco armazena apenas o hash `SHA-256` do token de sessão aleatório (`secrets.token_urlsafe(32)`).
+- As sessões expiram após 5 minutos de inatividade (`300` segundos) ou imediatamente quando `versao_senha` é incrementada.
+- O cookie de sessão local recebe os atributos `HttpOnly`, `SameSite=Strict` e `Max-Age=300` (adicionando `Secure` quando executado sob HTTPS).
+- Operações de leitura, gravação de solicitações, administração de recuperações e download de relatório validam a sessão e o perfil no servidor por meio de `exigir_usuario()`.
 
-## Banco de dados
+## Integridade de dados e exportação (`banco_local.py` e `real_data.py`)
 
-- Conta específica para a aplicação, sem privilégio administrativo.
-- Conta separada e temporária para executar migrações.
-- Acesso protegido por rede, firewall e credenciais gerenciadas.
-- SQL Server com conexão criptografada e certificado validado.
-- Queries parametrizadas, transações para gravações relacionadas e auditoria de operações relevantes.
-
-## Dados e arquivos
-
-- O portfólio usa apenas dados criados para demonstração.
-- Arquivos enviados são validados por tamanho, extensão, conteúdo e destino permitido.
-- Exportações neutralizam valores interpretáveis como fórmulas por planilhas.
-- Logs não registram senhas, tokens, strings de conexão ou dados pessoais desnecessários.
-
-## Cadeia de fornecimento
-
-- Dependências com versões controladas e atualização periódica.
-- Verificação automatizada de vulnerabilidades conhecidas.
-- Ações de CI com permissões mínimas e versões fixadas quando possível.
-- Revisão de pull request antes de publicar em produção.
-
+- A tabela `solicitacoes` possui restrições `CHECK(Quantidade_sugerida > 0)` e `CHECK(Filial_origem_ID != Filial_destino_ID)` no schema do SQLite.
+- A gravação de novas solicitações roda dentro de uma transação `BEGIN IMMEDIATE`, conferindo se a quantidade é inteira e positiva, se não há solicitação pendente idêntica na janela operacional e se o volume não excede o estoque disponível na origem.
+- O gerador de planilhas em `gerar_relatorio_excel` inicializa o `XlsxWriter` com `strings_to_formulas=False` e `strings_to_urls=False`, impedindo que descrições de produtos iniciadas por `=`, `+`, `-` ou `@` sejam interpretadas como fórmulas pelo Excel.

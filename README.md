@@ -1,95 +1,115 @@
-# Plataforma de Remanejamento de Estoque
+# Remanejamento de estoque entre filiais
 
-> Proposta de apresentação para um repositório público no GitHub. Esta pasta é uma demonstração documental: não contém dados, credenciais, infraestrutura ou regras internas da operação.
+Aplicação em Python e Streamlit para planejar transferências de mercadorias, recompor grades quebradas e auditar a execução entre lojas. Esta versão utiliza SQLite e uma massa de dados sintética para execução local sem dependência de infraestrutura externa.
 
-Aplicação Streamlit para solicitar, acompanhar e auditar transferências de estoque entre filiais. O repositório público mostra a arquitetura, a experiência de uso e os padrões de engenharia. A operação real fica em um repositório privado.
+## Problema operacional
 
-## O problema
+Redes de varejo físico acumulam dois desequilíbrios frequentes no estoque das lojas:
+1. Ruptura de produtos de giro rápido em algumas filiais enquanto outras acumulam excesso do mesmo SKU.
+2. Grades de vestuário e calçados furadas (com um ou dois tamanhos restantes e poucas peças), que perdem conversão na área de vendas.
 
-Transferências entre lojas costumam depender de planilhas, validações manuais e fontes diferentes de informação. A plataforma reúne esse fluxo em uma única interface, com seleção de SKUs, plano de transferência, registro de solicitações e auditoria.
+Quando o remanejamento depende de planilhas avulsas, o comprador gasta horas cruzando saldos, erra quantidades disponíveis e perde o rastreamento do que foi solicitado contra o que de fato saiu das lojas. Este painel centraliza a consulta de estoque, o cálculo das sugestões, o registro das solicitações e a auditoria pós-emissão.
 
-## O que a aplicação oferece
+## Motor analítico e regras de decisão
 
-- Busca e seleção individual ou em lote de SKUs.
-- Planos de transferência manual, de concentração e de distribuição.
-- Registro direto ou revisão prévia de uma solicitação.
-- Histórico e auditoria das movimentações.
-- Controle de acesso por usuário, sessão e perfil.
-- Experiência guiada para novos usuários.
-- Ambiente de demonstração com dados inteiramente fictícios.
+O módulo `calculos.py` implementa três estratégias de movimentação e uma rotina de conciliação:
 
-## Como o repositório público seria organizado
+### 1. Distribuição cadenciada por cobertura (`calcular_distribuicao_cadenciada`)
+
+Equilibra o estoque entre as filiais participantes a partir do histórico de vendas dos últimos 60 dias:
+- Calcula a venda diária de cada SKU por filial: $\text{Venda Diária} = \frac{\text{Vendas}_{60\text{d}}}{60}$.
+- Projeta os dias de cobertura do saldo atual: $\text{Dias de Cobertura} = \frac{\text{Estoque Atual}}{\text{Venda Diária}}$.
+- Filtra como recebedoras as lojas cuja cobertura caiu abaixo do gatilho de alerta (`dias_alerta`, padrão de 10 dias) e dimensiona a necessidade para atingir a meta de abastecimento (`dias_alvo`, padrão de 25 dias).
+- Filtra como doadoras as lojas com saldo acima da trava de exposição na prateleira (`estoque_min_visual`, padrão de 4 peças) e transfere apenas quando o excedente atinge o lote mínimo de transporte (`lote_minimo`, padrão de 2 peças), priorizando as maiores necessidades e os maiores saldos.
+
+### 2. Recomposição de pontas de grade (`calcular_concentracao_pontas`)
+
+Identifica produtos de grade (mesmo modelo pai e cor com múltiplos tamanhos) que ficaram fragmentados na rede:
+- Marca como doadoras as filiais que possuem no máximo 2 tamanhos distintos em estoque e volume total igual ou inferior a 3 peças daquela grade.
+- Seleciona como filial de destino a loja de maior giro nos últimos 60 dias que, após receber as peças, passe a ter ao menos 2 tamanhos disponíveis. Em caso de empate no volume de vendas, utiliza uma ordem de prioridade entre as filiais.
+
+### 3. Concentração de estoque (`gerar_transferencia_concentracao`)
+
+Recolhe o saldo disponível de uma filial específica ou de toda a rede para uma loja destino escolhida pelo comprador, útil em ações promocionais, liquidações ou fechamento de coleção.
+
+### 4. Auditoria de execução (`auditar_sugestoes`)
+
+Cruza as solicitações gravadas (`solicitacoes`) com as transferências emitidas (`realizadas`) usando a chave composta `(SKU, Filial_origem_ID, Filial_destino_ID)`. Considera válidas as emissões ocorridas a partir de duas horas antes do registro da sugestão e classifica cada item em:
+- `CONCLUÍDA`: emissão encontrada com quantidade realizada igual à sugerida.
+- `DIVERGENTE`: emissão encontrada com quantidade diferente da solicitada.
+- `PENDENTE`: sem emissão registrada dentro do prazo operacional de 10 dias.
+- `IGNORADO`: solicitação sem emissão após mais de 10 dias corridos.
+
+## Estrutura do projeto
 
 ```text
-remanejamento-estoque/
-├── app.py                      # ponto de entrada Streamlit
-├── src/
-│   ├── domain/                 # regras de negócio independentes da interface
-│   ├── services/               # casos de uso: solicitação, auditoria e autenticação
-│   ├── repositories/           # acesso a dados por interfaces bem definidas
-│   ├── infrastructure/         # SQL Server, configuração e observabilidade
-│   └── ui/                     # páginas, componentes e tema Streamlit
-├── tests/                      # testes unitários e de integração
-├── migrations/                 # mudanças versionadas no banco
-├── demo_data/                  # dados sintéticos para portfólio
-├── docs/                       # decisões técnicas e documentação de segurança
-├── .github/                    # verificação automática e manutenção de dependências
-├── .env.example                # somente nomes de variáveis, sem segredos
-├── SECURITY.md                 # política de comunicação de vulnerabilidades
-└── README.md
+.
+├── app.py                      # Interface Streamlit (planejamento, pontas, auditoria e barra lateral)
+├── calculos.py                 # Algoritmos de distribuição, concentração, pontas de grade e auditoria
+├── real_data.py                # Consultas locais, validação de gravação e geração de relatório Excel
+├── dados_demo.py               # Geração determinística de produtos, saldos, vendas de 60d e histórico
+├── banco_local.py              # Conexão e criação de tabelas no SQLite (dados/portfolio.sqlite3)
+├── auth.py                     # Cadastro, hash PBKDF2-HMAC-SHA256, bloqueio por falhas e sessões
+├── session_bridge.py           # Serviço HTTP local para cookie HttpOnly e controle de inatividade
+├── guia.py                     # Etapas do guia interativo por perfil de acesso
+├── antigravity.css             # Folha de estilos da interface
+├── iniciar_portfolio.cmd       # Atalho de inicialização para Windows
+├── requirements.txt            # Dependências fixadas
+├── tests/
+│   └── test_fluxos.py          # Testes automatizados de autenticação, cálculos, Excel e interface
+└── docs/
+    ├── ARQUITETURA.md          # Fluxo de execução e separação de camadas
+    ├── ESTRUTURA.md            # Responsabilidades de cada módulo
+    ├── PUBLICACAO.md           # Cuidados para publicação e demonstração
+    └── SEGURANCA.md            # Controles de autenticação, sessão e exportação
 ```
 
-Veja a visão completa em [Estrutura do repositório](docs/ESTRUTURA.md).
+## Como executar localmente
 
-## Arquitetura proposta
+É necessário ter o Python 3.11 ou superior instalado.
 
-```mermaid
-flowchart LR
-    U[Usuário] -->|HTTPS| RP[Proxy reverso / servidor interno]
-    RP --> APP[Aplicação Streamlit]
-    APP --> AUTH[Serviço de autenticação]
-    APP --> DOMAIN[Regras de negócio]
-    AUTH --> DB[(Banco de dados)]
-    DOMAIN --> DB
-    DOMAIN --> AUDIT[Registro de auditoria]
+### Windows (PowerShell ou Prompt de Comando)
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\iniciar_portfolio.cmd
 ```
 
-A separação entre interface, regras de negócio e dados torna as mudanças mais fáceis de testar. Também evita que regras de segurança fiquem espalhadas pelas telas. Há mais detalhes em [Arquitetura](docs/ARQUITETURA.md).
+### Linux ou macOS
 
-## Segurança por padrão
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py --server.port 8504 --server.address 127.0.0.1
+```
 
-O repositório público não inclui dados reais, arquivos operacionais, nomes de servidores, caminhos internos ou segredos. Na versão planejada, a aplicação usa:
+Acesse `http://127.0.0.1:8504` no navegador. Na primeira execução, o aplicativo cria o banco `dados/portfolio.sqlite3` com as contas de demonstração e as solicitações iniciais.
 
-- Senhas armazenadas somente como hashes fortes com salt.
-- Sessões invalidadas por inatividade e por alteração de senha.
-- Autorização no servidor para cada operação sensível.
-- Conta SQL exclusiva, com o menor conjunto possível de permissões.
-- Conexão criptografada e validação do certificado do banco.
-- Registro de auditoria sem expor dados sensíveis.
-- Exportações protegidas contra fórmulas injetadas em planilhas.
-- Verificação contínua de testes, dependências e segredos antes de cada publicação.
+## Contas de demonstração
 
-A proposta completa está em [Segurança](docs/SEGURANCA.md).
+Na tela de login, você pode usar os botões de acesso rápido de 1 clique ou informar as credenciais abaixo:
 
-## Demonstração pública x operação privada
+| Usuário | Senha inicial | Perfil | Recursos disponíveis |
+| --- | --- | --- | --- |
+| `ADMINDEMO` | `Portfolio2026!` | Administrador | Planejamento, pontas, auditoria, recuperação de senhas e exportação Excel |
+| `COMPRASDEMO` | `Portfolio2026!` | Compras | Planejamento, pontas, auditoria e gestão da própria senha |
 
-| Tema | Demonstração pública | Operação privada |
-| --- | --- | --- |
-| Dados | Sintéticos e anonimizados | Dados corporativos |
-| Banco | SQLite local ou base demo isolada | SQL Server interno com TLS |
-| Acesso | Sem integração corporativa | Usuários e permissões reais |
-| Relatórios | Dados de exemplo | Fluxos e documentos operacionais |
-| Configuração | `.env.example` | Segredos fora do Git |
+## Roteiro rápido para avaliação
 
-Essa separação permite apresentar o projeto sem expor a infraestrutura corporativa.
+1. Acesse com o botão `Entrar como Admin` na tela inicial e avance ou feche o guia de boas-vindas.
+2. Na aba `Transferências`, clique em `Pesquisar` (ou digite `91000001`) e marque os SKUs desejados.
+3. Alterne entre as estratégias `Concentrar`, `Manual` e `Distribuir` (para testar `Distribuir`, selecione o setor `08-PERFUMARIA` nos filtros avançados e pesquise novamente).
+4. Clique em `Revisar transferências` ou `Solicitar diretamente` para gravar o pedido no SQLite.
+5. Abra a aba `Transferência de Pontas` e clique em `Buscar pontas de grade` para listar os itens com grade quebrada e a loja destino calculada pelo giro.
+6. Abra a aba `Auditoria` para inspecionar os indicadores de peças realizadas versus solicitadas, filtrar por status (`PENDENTE`, `CONCLUÍDA`, `DIVERGENTE`) e identificar a filial com maior volume pendente.
+7. Na barra lateral esquerda, expanda `Baixar relatorio`, escolha o intervalo de datas e exporte a planilha `.xlsx` separada por filial de origem.
 
-## Qualidade e manutenção
+## Executar os testes automatizados
 
-Antes de uma mudança chegar ao ambiente oficial, o GitHub verifica formatação, testes, análise estática, vulnerabilidades conhecidas nas dependências e possível exposição de segredos. Atualizações de dependências são abertas para revisão antes da aprovação.
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
 
-Consulte [Publicação e automação](docs/PUBLICACAO.md) e [Como contribuir](CONTRIBUTING.md).
-
-## Estado desta demonstração
-
-Esta pasta mostra como o repositório pode ficar. O código do ambiente de desenvolvimento só será levado para cá depois das correções de segurança, da remoção de referências internas e da substituição de dados reais por dados sintéticos.
-
+A suíte valida o cadastro e o bloqueio de login após 5 tentativas, a revogação de sessão na troca de senha, a expiração por ociosidade de 5 minutos, os cálculos de distribuição e pontas, o bloqueio de duplicatas na gravação, a proteção contra injeção de fórmulas no Excel e o fluxo completo de interface via `Streamlit AppTest`.

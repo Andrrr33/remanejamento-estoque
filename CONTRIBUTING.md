@@ -1,19 +1,19 @@
 # Como contribuir
 
-O repositório público funciona como demonstração técnica. Toda contribuição deve preservar esse objetivo: não inclua informações de filiais, pessoas, bancos, caminhos de rede, relatórios corporativos ou credenciais.
+Este repositório apresenta uma versão funcional e autocontida do sistema de remanejamento de estoque com dados sintéticos. Contribuições devem manter o projeto executável sem dependências externas.
 
-## Fluxo de mudança
+## Passo a passo para alterações
 
-1. Crie uma branch curta a partir da branch principal.
-2. Mantenha a alteração focada em um único objetivo.
-3. Inclua ou atualize testes quando houver mudança de regra de negócio.
-4. Execute os verificadores locais antes de abrir o pull request.
-5. Descreva o impacto, a validação realizada e qualquer risco residual.
+1. Crie uma branch a partir da branch principal.
+2. Mantenha o escopo da alteração focado em um único ajuste ou funcionalidade.
+3. Atualize ou adicione testes em `tests/test_fluxos.py` sempre que alterar cálculos de estoque, regras de autenticação ou validações de gravação.
+4. Execute a suíte de testes antes de abrir um pull request:
+   ```powershell
+   .\.venv\Scripts\python.exe -m unittest discover -s tests -v
+   ```
 
-## Critérios de aceite
+## Critérios de revisão
 
-- Sem segredos, dados reais ou artefatos operacionais no diff.
-- Sem quebra de testes existentes.
-- Sem alteração de segurança sem revisão explícita.
-- Comportamento compreensível para quem não conhece a operação original.
-
+- Nenhum banco `.sqlite3`, planilha `.xlsx`, certificado ou arquivo `.log` incluído no commit.
+- Compatibilidade preservada com os testes automatizados existentes.
+- Consultas SQL parametrizadas e validação de sessão via `exigir_usuario()` nas operações do servidor.
