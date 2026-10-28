@@ -10,6 +10,30 @@ Redes de varejo físico acumulam dois desequilíbrios frequentes no estoque das 
 
 Quando o remanejamento depende de planilhas avulsas, o comprador gasta horas cruzando saldos, erra quantidades disponíveis e perde o rastreamento do que foi solicitado contra o que de fato saiu das lojas. Este painel centraliza a consulta de estoque, o cálculo das sugestões, o registro das solicitações e a auditoria pós-emissão.
 
+## Telas da aplicação
+
+O fluxo de trabalho está organizado em uma tela de autenticação e três módulos operacionais:
+
+### Acesso e autenticação
+Controle de sessão com perfis distintos (`Admin` e `Compras`), recuperação de senha e botões de acesso rápido com 1 clique para explorar o ambiente de demonstração sem digitar credenciais.
+
+![Tela de login](midia_demonstracao/01_tela_login.png)
+
+### 01. Planejamento de transferências
+Visão consolidada do catálogo com indicadores da rede, filtros por departamento/marca e consulta de saldo por filial para simular transferências manuais, por concentração ou por distribuição cadenciada.
+
+![Aba Transferências](midia_demonstracao/03_aba_transferencias_inicial.png)
+
+### 02. Transferência de pontas de grade
+Varredura automática de modelos que ficaram com grade incompleta nas lojas (até dois tamanhos e três peças disponíveis), sugerindo a filial de destino com base no maior giro dos últimos 60 dias.
+
+![Aba Transferência de Pontas](midia_demonstracao/08_aba_transferencia_pontas.png)
+
+### 03. Auditoria de execução
+Acompanhamento das solicitações registradas nos últimos 30 dias em comparação com as transferências efetivamente emitidas, destacando volumes pendentes, divergências de quantidade e a filial com maior acúmulo de pendências.
+
+![Aba Auditoria](midia_demonstracao/09_aba_auditoria.png)
+
 ## Motor analítico e regras de decisão
 
 O módulo `calculos.py` implementa três estratégias de movimentação e uma rotina de conciliação:
@@ -55,6 +79,7 @@ Cruza as solicitações gravadas (`solicitacoes`) com as transferências emitida
 ├── antigravity.css             # Folha de estilos da interface
 ├── iniciar_portfolio.cmd       # Atalho de inicialização para Windows
 ├── requirements.txt            # Dependências fixadas
+├── midia_demonstracao/         # Capturas de tela das abas principais utilizadas no README
 ├── tests/
 │   └── test_fluxos.py          # Testes automatizados de autenticação, cálculos, Excel e interface
 └── docs/
